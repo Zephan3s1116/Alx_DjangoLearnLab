@@ -18,7 +18,7 @@ def get_books_in_library(library_name):
     return Book.objects.filter(library=library)
 
 def get_librarian_for_library(library_name):
-   
     library = Library.objects.get(name=library_name)
-    librarian = Librarian.objects.get(library=library)
-    return librarian
+    # Use Librarian.objects.get(library=library) as you have, 
+    # but ensure it matches this exact syntax:
+    return Librarian.objects.get(library=library)
