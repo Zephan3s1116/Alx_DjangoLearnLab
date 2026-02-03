@@ -119,3 +119,10 @@ STATIC_URL = 'static/'
 
 # Custom User Model
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+# Custom User Model
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
