@@ -1,79 +1,58 @@
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.db.models import Q
 from .models import Book
-from django.http import HttpResponseForbidden
+from .forms import BookForm, ExampleForm
 
 @permission_required('bookshelf.can_view', raise_exception=True)
 def book_list(request):
-    """
-    View to list all books.
-    Requires 'can_view' permission.
-    """
     books = Book.objects.all()
-    return render(request, 'bookshelf/book_list.html', {'books': books})
-
+    search_query = request.GET.get('search', '')
+    if search_query:
+        books = books.filter(Q(title__icontains=search_query) | Q(author__icontains=search_query))
+    return render(request, 'bookshelf/book_list.html', {'books': books, 'search_query': search_query})
 
 @permission_required('bookshelf.can_create', raise_exception=True)
 def book_create(request):
-    """
-    View to create a new book.
-    Requires 'can_create' permission.
-    """
     if request.method == 'POST':
-        title = request.POST.get('title')
-        author = request.POST.get('author')
-        publication_year = request.POST.get('publication_year')
-        isbn = request.POST.get('isbn')
-        description = request.POST.get('description', '')
-        
-        book = Book.objects.create(
-            title=title,
-            author=author,
-            publication_year=publication_year,
-            isbn=isbn,
-            description=description
-        )
-        messages.success(request, f'Book "{book.title}" created successfully!')
-        return redirect('book_list')
-    
-    return render(request, 'bookshelf/book_form.html', {'action': 'Create'})
-
+        form = BookForm(request.POST)
+        if form.is_valid():
+            book = form.save()
+            messages.success(request, f'Book created successfully!')
+            return redirect('book_list')
+    else:
+        form = BookForm()
+    return render(request, 'bookshelf/book_form.html', {'form': form, 'action': 'Create'})
 
 @permission_required('bookshelf.can_edit', raise_exception=True)
 def book_edit(request, pk):
-    """
-    View to edit an existing book.
-    Requires 'can_edit' permission.
-    """
     book = get_object_or_404(Book, pk=pk)
-    
     if request.method == 'POST':
-        book.title = request.POST.get('title')
-        book.author = request.POST.get('author')
-        book.publication_year = request.POST.get('publication_year')
-        book.isbn = request.POST.get('isbn')
-        book.description = request.POST.get('description', '')
-        book.save()
-        
-        messages.success(request, f'Book "{book.title}" updated successfully!')
-        return redirect('book_list')
-    
-    return render(request, 'bookshelf/book_form.html', {'book': book, 'action': 'Edit'})
-
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Book updated successfully!')
+            return redirect('book_list')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'bookshelf/book_form.html', {'form': form, 'book': book, 'action': 'Edit'})
 
 @permission_required('bookshelf.can_delete', raise_exception=True)
 def book_delete(request, pk):
-    """
-    View to delete a book.
-    Requires 'can_delete' permission.
-    """
     book = get_object_or_404(Book, pk=pk)
-    
     if request.method == 'POST':
-        title = book.title
         book.delete()
-        messages.success(request, f'Book "{title}" deleted successfully!')
+        messages.success(request, f'Book deleted successfully!')
         return redirect('book_list')
-    
     return render(request, 'bookshelf/book_confirm_delete.html', {'book': book})
+
+def form_example(request):
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            messages.success(request, 'Form submitted successfully!')
+            return redirect('form_example')
+    else:
+        form = ExampleForm()
+    return render(request, 'bookshelf/form_example.html', {'form': form})
