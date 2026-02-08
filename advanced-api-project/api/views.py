@@ -6,7 +6,7 @@ using Django REST Framework's generic views. Each view is customized to handle
 specific use cases and includes proper permission controls.
 
 Views included:
-- BookListView: List all books (GET) and create new books (POST)
+- BookListView: List all books (GET)
 - BookDetailView: Retrieve a single book (GET)
 - BookCreateView: Create a new book (POST)
 - BookUpdateView: Update an existing book (PUT/PATCH)

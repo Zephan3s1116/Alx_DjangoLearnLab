@@ -1,7 +1,7 @@
 # API Testing Guide
 
 ## Overview
-This document provides instructions for testing all API endpoints in the Advanced API Project.
+This document provides comprehensive instructions for testing all API endpoints in the Advanced API Project.
 
 ## Prerequisites
 1. Server must be running: `python manage.py runserver`
@@ -9,12 +9,12 @@ This document provides instructions for testing all API endpoints in the Advance
 
 ## Getting Authentication Token
 
-### Create a superuser:
+### Method 1: Create a superuser
 ```bash
 python manage.py createsuperuser
 ```
 
-### Get token via Django shell:
+### Method 2: Get token via Django shell
 ```bash
 python manage.py shell
 ```
@@ -27,6 +27,8 @@ token, created = Token.objects.get_or_create(user=user)
 print(f"Your token: {token.key}")
 ```
 
+---
+
 ## Testing Endpoints
 
 ### 1. List All Books (GET)
@@ -34,7 +36,7 @@ print(f"Your token: {token.key}")
 
 **Authentication:** Not required
 
-**curl command:**
+**Basic curl command:**
 ```bash
 curl http://127.0.0.1:8000/api/books/
 ```
@@ -44,11 +46,20 @@ curl http://127.0.0.1:8000/api/books/
 # Filter by publication year
 curl "http://127.0.0.1:8000/api/books/?publication_year=2020"
 
+# Filter by author ID
+curl "http://127.0.0.1:8000/api/books/?author=1"
+
 # Search by title
 curl "http://127.0.0.1:8000/api/books/?search=Harry"
 
-# Order by title
+# Order by title (ascending)
 curl "http://127.0.0.1:8000/api/books/?ordering=title"
+
+# Order by publication year (descending)
+curl "http://127.0.0.1:8000/api/books/?ordering=-publication_year"
+
+# Combine filters
+curl "http://127.0.0.1:8000/api/books/?publication_year=2020&ordering=title"
 ```
 
 **Expected Response (200 OK):**
@@ -59,6 +70,12 @@ curl "http://127.0.0.1:8000/api/books/?ordering=title"
         "title": "Book Title",
         "publication_year": 2020,
         "author": 1
+    },
+    {
+        "id": 2,
+        "title": "Another Book",
+        "publication_year": 2021,
+        "author": 2
     }
 ]
 ```
@@ -66,7 +83,7 @@ curl "http://127.0.0.1:8000/api/books/?ordering=title"
 ---
 
 ### 2. Retrieve Single Book (GET)
-**Endpoint:** `GET http://127.0.0.1:8000/api/books/1/`
+**Endpoint:** `GET http://127.0.0.1:8000/api/books/<id>/`
 
 **Authentication:** Not required
 
@@ -145,7 +162,7 @@ curl -X POST http://127.0.0.1:8000/api/books/create/ \
 }
 ```
 
-**Error Response (401 Unauthorized - No Token):**
+**Error Response (401 Unauthorized):**
 ```json
 {
     "detail": "Authentication credentials were not provided."
@@ -155,7 +172,7 @@ curl -X POST http://127.0.0.1:8000/api/books/create/ \
 ---
 
 ### 4. Update Book (PUT/PATCH)
-**Endpoint:** `PUT/PATCH http://127.0.0.1:8000/api/books/1/update/`
+**Endpoint:** `PUT/PATCH http://127.0.0.1:8000/api/books/<id>/update/`
 
 **Authentication:** Required (Token)
 
@@ -197,7 +214,7 @@ curl -X PATCH http://127.0.0.1:8000/api/books/1/update/ \
 ---
 
 ### 5. Delete Book (DELETE)
-**Endpoint:** `DELETE http://127.0.0.1:8000/api/books/1/delete/`
+**Endpoint:** `DELETE http://127.0.0.1:8000/api/books/<id>/delete/`
 
 **Authentication:** Required (Token)
 
@@ -249,14 +266,19 @@ curl -X DELETE http://127.0.0.1:8000/api/books/1/delete/ \
 2. GET /api/books/{id}/ (verify changes)
 
 #### Scenario 3: Permission Testing
-1. GET /api/books/ WITHOUT token (should work)
-2. POST /api/books/create/ WITHOUT token (should fail with 401)
-3. POST /api/books/create/ WITH token (should succeed)
+1. GET /api/books/ WITHOUT token (should work - 200)
+2. POST /api/books/create/ WITHOUT token (should fail - 401)
+3. POST /api/books/create/ WITH token (should succeed - 201)
 
 #### Scenario 4: Validation Testing
-1. POST /api/books/create/ with future year (should fail)
-2. POST /api/books/create/ with year < 1000 (should fail)
-3. POST /api/books/create/ with valid year (should succeed)
+1. POST /api/books/create/ with future year (should fail - 400)
+2. POST /api/books/create/ with year < 1000 (should fail - 400)
+3. POST /api/books/create/ with valid year (should succeed - 201)
+
+#### Scenario 5: Filtering and Searching
+1. GET /api/books/?publication_year=2020
+2. GET /api/books/?search=Test
+3. GET /api/books/?ordering=-publication_year
 
 ---
 
@@ -286,13 +308,22 @@ curl -X DELETE http://127.0.0.1:8000/api/books/1/delete/ \
 ## Troubleshooting
 
 ### Issue: 401 Unauthorized
-**Solution:** Make sure you're including the token in the Authorization header
+**Solution:** Make sure you're including the token in the Authorization header:
+```
+Authorization: Token your_actual_token_here
+```
 
 ### Issue: 404 Not Found
-**Solution:** Check that the book ID exists in the database
+**Solution:** Check that:
+1. The book ID exists in the database
+2. The URL is correct (check for typos)
+3. The server is running
 
 ### Issue: 400 Bad Request
-**Solution:** Verify request body matches required format and passes validation
+**Solution:** Verify:
+1. Request body matches required format
+2. All required fields are included (for PUT)
+3. Publication year is valid (not future, >= 1000)
 
 ### Issue: 500 Server Error
-**Solution:** Check server logs for detailed error information
+**Solution:** Check server console logs for detailed error information
