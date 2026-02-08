@@ -114,3 +114,64 @@ advanced-api-project/
 3. **Model Relationships**: One-to-Many (Author to Books)
 4. **Related Names**: Access books via `author.books.all()`
 5. **Read-Only Fields**: Nested books are read-only in AuthorSerializer
+
+## Task 1: Custom Views and Generic Views
+
+### Views Implemented
+
+1. **BookListView** (ListView)
+   - Endpoint: `GET /api/books/`
+   - Features: Filtering, searching, ordering
+   - Permissions: Public (read-only)
+
+2. **BookDetailView** (DetailView)
+   - Endpoint: `GET /api/books/<id>/`
+   - Features: Retrieve single book
+   - Permissions: Public (read-only)
+
+3. **BookCreateView** (CreateView)
+   - Endpoint: `POST /api/books/create/`
+   - Features: Create new book with validation
+   - Permissions: Authenticated users only
+
+4. **BookUpdateView** (UpdateView)
+   - Endpoints: `PUT/PATCH /api/books/<id>/update/`
+   - Features: Full or partial update
+   - Permissions: Authenticated users only
+
+5. **BookDeleteView** (DeleteView)
+   - Endpoint: `DELETE /api/books/<id>/delete/`
+   - Features: Delete with confirmation
+   - Permissions: Authenticated users only
+
+### Permissions
+
+- **IsAuthenticatedOrReadOnly**: Applied to List and Detail views (anyone can read)
+- **IsAuthenticated**: Applied to Create, Update, Delete views (auth required)
+
+### Features
+
+- **Filtering**: Filter books by publication year and author
+- **Searching**: Search books by title or author name
+- **Ordering**: Order results by publication year or title
+- **Custom Validation**: Publication year validation in serializer
+- **Custom Responses**: Enhanced response messages for all operations
+
+### Testing
+
+See [TEST_API.md](TEST_API.md) for comprehensive testing instructions.
+
+### Quick Test
+```bash
+# Start server
+python manage.py runserver
+
+# List books (no auth required)
+curl http://127.0.0.1:8000/api/books/
+
+# Create book (auth required)
+curl -X POST http://127.0.0.1:8000/api/books/create/ \
+  -H "Authorization: Token YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Test Book", "publication_year": 2023, "author": 1}'
+```
