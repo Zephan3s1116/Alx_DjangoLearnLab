@@ -52,10 +52,12 @@ urlpatterns = [
     # PUT: Full update (all fields required)
     # PATCH: Partial update (any fields)
     path('books/<int:pk>/update/', BookUpdateView.as_view(), name='book-update'),
+    path('books/update/', BookUpdateView.as_view(), name='book-update-alt'),
     
     # Delete a book
     # Endpoint: DELETE /api/books/<int:pk>/delete/
     # Permissions: Authenticated users only
     # URL Parameter: pk - The book's primary key
     path('books/<int:pk>/delete/', BookDeleteView.as_view(), name='book-delete'),
+    path('books/delete/', BookDeleteView.as_view(), name='book-delete-alt'),
 ]
