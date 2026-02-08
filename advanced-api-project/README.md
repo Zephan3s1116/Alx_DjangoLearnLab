@@ -437,3 +437,277 @@ To continue developing this project, consider:
 - **Project Directory:** `advanced-api-project`
 - **Task:** Task 1 - Building Custom Views and Generic Views in Django REST Framework
 
+
+---
+
+## Task 2: Implementing Filtering, Searching, and Ordering
+
+### Overview
+This task implements comprehensive filtering, searching, and ordering capabilities for the Book API, allowing users to efficiently query and retrieve books based on various criteria.
+
+---
+
+### Features Implemented
+
+#### 1. **Filtering**
+Advanced filtering capabilities using Django Filter Backend with custom FilterSet.
+
+**Available Filters:**
+- **Exact Match:**
+  - `title`: Filter by exact title
+  - `author`: Filter by author ID
+  - `publication_year`: Filter by exact year
+  
+- **Range Filters:**
+  - `publication_year__gte`: Books published in or after specified year
+  - `publication_year__lte`: Books published in or before specified year
+  
+- **Contains Filter:**
+  - `title__icontains`: Case-insensitive partial title match
+
+**Examples:**
+```bash
+GET /api/books/?publication_year=2020
+GET /api/books/?publication_year__gte=2000&publication_year__lte=2020
+GET /api/books/?title__icontains=harry
+GET /api/books/?author=1
+```
+
+#### 2. **Searching**
+Full-text search across multiple fields using SearchFilter.
+
+**Search Fields:**
+- `title`: Book title
+- `author__name`: Author's name
+
+**Examples:**
+```bash
+GET /api/books/?search=Harry
+GET /api/books/?search=Rowling
+GET /api/books/?search=Potter
+```
+
+**How It Works:**
+- Searches across both title and author name simultaneously
+- Case-insensitive
+- Returns books matching the search term in ANY search field
+
+#### 3. **Ordering**
+Flexible result ordering using OrderingFilter.
+
+**Available Ordering Fields:**
+- `title`: Sort by book title
+- `publication_year`: Sort by publication year
+- `author`: Sort by author ID
+
+**Examples:**
+```bash
+GET /api/books/?ordering=title              # Ascending A-Z
+GET /api/books/?ordering=-title             # Descending Z-A
+GET /api/books/?ordering=-publication_year  # Newest first
+GET /api/books/?ordering=author,title       # Multiple fields
+```
+
+**Ordering Syntax:**
+- **Ascending:** Use field name (e.g., `ordering=title`)
+- **Descending:** Prefix with `-` (e.g., `ordering=-title`)
+- **Multiple:** Separate with commas (e.g., `ordering=author,title`)
+
+#### 4. **Combining Features**
+All features can be combined in a single query.
+
+**Examples:**
+```bash
+# Filter by year range and sort by title
+GET /api/books/?publication_year__gte=2000&publication_year__lte=2020&ordering=title
+
+# Search and sort
+GET /api/books/?search=Harry&ordering=-publication_year
+
+# Filter by author and sort
+GET /api/books/?author=1&ordering=-publication_year
+
+# Complex query with all features
+GET /api/books/?author=1&publication_year__gte=2000&search=Potter&ordering=title
+```
+
+---
+
+### Implementation Details
+
+#### Custom FilterSet
+Created `BookFilter` class in `api/views.py`:
+```python
+class BookFilter(filters.FilterSet):
+    title = filters.CharFilter(field_name='title', lookup_expr='exact')
+    author = filters.NumberFilter(field_name='author')
+    publication_year = filters.NumberFilter(field_name='publication_year')
+    publication_year__gte = filters.NumberFilter(field_name='publication_year', lookup_expr='gte')
+    publication_year__lte = filters.NumberFilter(field_name='publication_year', lookup_expr='lte')
+    title__icontains = filters.CharFilter(field_name='title', lookup_expr='icontains')
+    
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'publication_year']
+```
+
+#### BookListView Configuration
+```python
+class BookListView(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    # Enable filtering, searching, and ordering
+    filter_backends = [
+        filters.DjangoFilterBackend,  # For filtering
+        drf_filters.SearchFilter,      # For searching
+        drf_filters.OrderingFilter     # For ordering
+    ]
+    
+    # Use custom FilterSet
+    filterset_class = BookFilter
+    
+    # Search configuration
+    search_fields = ['title', 'author__name']
+    
+    # Ordering configuration
+    ordering_fields = ['title', 'publication_year', 'author']
+    ordering = ['-publication_year']  # Default ordering
+```
+
+#### Settings Configuration
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    # ... other settings
+}
+```
+
+---
+
+### Testing
+
+#### Run Automated Tests
+```bash
+./test_filtering_searching_ordering.sh
+```
+
+#### Manual Testing Examples
+
+**1. Filter by publication year:**
+```bash
+curl "http://127.0.0.1:8000/api/books/?publication_year=2020"
+```
+
+**2. Filter by year range:**
+```bash
+curl "http://127.0.0.1:8000/api/books/?publication_year__gte=2000&publication_year__lte=2020"
+```
+
+**3. Search for books:**
+```bash
+curl "http://127.0.0.1:8000/api/books/?search=Harry"
+```
+
+**4. Sort by title:**
+```bash
+curl "http://127.0.0.1:8000/api/books/?ordering=title"
+```
+
+**5. Complex query:**
+```bash
+curl "http://127.0.0.1:8000/api/books/?author=1&publication_year__gte=2000&ordering=-publication_year"
+```
+
+---
+
+### Documentation Files
+
+- **FILTERING_SEARCHING_ORDERING_GUIDE.md**: Comprehensive guide with all examples and use cases
+- **test_filtering_searching_ordering.sh**: Automated testing script
+- **README.md**: This file - project documentation
+
+---
+
+### Query Parameter Reference
+
+| Category | Parameter | Type | Description | Example |
+|----------|-----------|------|-------------|---------|
+| **Filter** | `title` | string | Exact title match | `?title=Harry Potter` |
+| | `author` | integer | Filter by author ID | `?author=1` |
+| | `publication_year` | integer | Exact year | `?publication_year=2020` |
+| | `publication_year__gte` | integer | Year >= value | `?publication_year__gte=2000` |
+| | `publication_year__lte` | integer | Year <= value | `?publication_year__lte=2020` |
+| | `title__icontains` | string | Case-insensitive contains | `?title__icontains=harry` |
+| **Search** | `search` | string | Multi-field search | `?search=Harry` |
+| **Order** | `ordering` | string | Sort by field | `?ordering=title` |
+| | | | Sort descending | `?ordering=-title` |
+| | | | Multiple fields | `?ordering=author,title` |
+
+---
+
+### Expected Response Format
+
+Successful queries return paginated results:
+```json
+{
+    "count": 25,
+    "next": "http://127.0.0.1:8000/api/books/?page=2",
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "title": "Harry Potter and the Sorcerer's Stone",
+            "publication_year": 1997,
+            "author": 1
+        }
+    ]
+}
+```
+
+---
+
+### Best Practices
+
+1. **URL Encoding**: Always URL-encode special characters
+   - Space: `%20`
+   - `&`: `%26`
+
+2. **Combining Filters**: Multiple filters work as AND conditions
+   - `?author=1&publication_year=2020` means author 1 AND year 2020
+
+3. **Search vs Filter**:
+   - Use **search** for fuzzy, multi-field queries
+   - Use **filters** for exact matches
+
+4. **Performance**:
+   - Filtering by indexed fields is faster
+   - Consider pagination for large result sets
+
+---
+
+### Features Summary
+
+✅ Custom FilterSet with advanced filtering options  
+✅ Exact match filtering (title, author, publication_year)  
+✅ Range filtering (publication_year__gte, publication_year__lte)  
+✅ Case-insensitive contains filtering (title__icontains)  
+✅ Full-text search across multiple fields  
+✅ Flexible ordering by any field  
+✅ Ascending and descending sort options  
+✅ Ability to combine all features in single query  
+✅ Comprehensive documentation and testing  
+
+---
+
+### Repository Information
+
+- **GitHub Repository:** `Alx_DjangoLearnLab`
+- **Project Directory:** `advanced-api-project`
+- **Task:** Task 2 - Implementing Filtering, Searching, and Ordering in Django REST Framework
+

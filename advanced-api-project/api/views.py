@@ -2,34 +2,84 @@
 Django REST Framework Views for the Advanced API Project.
 
 This module contains view classes that handle CRUD operations for the Book model
-using Django REST Framework's generic views. Each view is customized to handle
-specific use cases and includes proper permission controls.
+using Django REST Framework's generic views. Each view includes advanced query
+capabilities: filtering, searching, and ordering.
 
 Views included:
-- BookListView: List all books (GET)
-- BookDetailView: Retrieve a single book (GET)
-- BookCreateView: Create a new book (POST)
-- BookUpdateView: Update an existing book (PUT/PATCH)
-- BookDeleteView: Delete a book (DELETE)
+- BookListView: List all books with filtering, searching, and ordering
+- BookDetailView: Retrieve a single book by ID
+- BookCreateView: Create a new book
+- BookUpdateView: Update an existing book
+- BookDeleteView: Delete a book
 
-All views use DRF's generic views for efficient, maintainable code.
+Features:
+- Filtering: Filter books by title, author, and publication_year
+- Searching: Search across title and author name
+- Ordering: Sort by any field, especially title and publication_year
 """
 
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from django_filters import rest_framework as filters
+from rest_framework import filters as drf_filters
 from .models import Book
 from .serializers import BookSerializer
 
 
+class BookFilter(filters.FilterSet):
+    """
+    Custom FilterSet for the Book model.
+    
+    Provides advanced filtering capabilities including:
+    - Exact match filtering for title, author, and publication_year
+    - Range filtering for publication_year (gte, lte)
+    - Case-insensitive contains filtering for title
+    
+    Usage Examples:
+        ?title=Harry Potter
+        ?author=1
+        ?publication_year=2020
+        ?publication_year__gte=2000
+        ?publication_year__lte=2020
+        ?title__icontains=harry
+    """
+    
+    # Exact match filters
+    title = filters.CharFilter(field_name='title', lookup_expr='exact')
+    author = filters.NumberFilter(field_name='author')
+    publication_year = filters.NumberFilter(field_name='publication_year')
+    
+    # Range filters for publication year
+    publication_year__gte = filters.NumberFilter(
+        field_name='publication_year', 
+        lookup_expr='gte',
+        help_text='Publication year greater than or equal to'
+    )
+    publication_year__lte = filters.NumberFilter(
+        field_name='publication_year', 
+        lookup_expr='lte',
+        help_text='Publication year less than or equal to'
+    )
+    
+    # Case-insensitive contains filter for title
+    title__icontains = filters.CharFilter(
+        field_name='title', 
+        lookup_expr='icontains',
+        help_text='Case-insensitive title search'
+    )
+    
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'publication_year']
+
+
 class BookListView(generics.ListAPIView):
     """
-    List all books in the database.
+    List all books in the database with advanced query capabilities.
     
-    This view provides a read-only endpoint that returns a list of all Book instances.
-    It supports filtering, searching, and ordering for better data discovery.
+    This view provides a read-only endpoint that returns a list of all Book instances
+    with comprehensive filtering, searching, and ordering features.
     
     Endpoint: GET /api/books/
     
@@ -37,44 +87,117 @@ class BookListView(generics.ListAPIView):
         - Read access: Any user (authenticated or not)
     
     Features:
-        - Filtering: Filter books by publication_year and author
-        - Searching: Search books by title or author name
-        - Ordering: Order results by publication_year or title
-    
-    Query Parameters:
-        - ?publication_year=2020 - Filter by publication year
-        - ?author=1 - Filter by author ID
-        - ?search=Harry - Search in title and author name
-        - ?ordering=-publication_year - Order by publication year (descending)
-        - ?ordering=title - Order by title (ascending)
+        
+        1. FILTERING:
+           Filter books by specific field values.
+           
+           Available Filters:
+           - title: Exact title match
+           - author: Filter by author ID
+           - publication_year: Exact year match
+           - publication_year__gte: Books published in or after specified year
+           - publication_year__lte: Books published in or before specified year
+           - title__icontains: Case-insensitive title search
+           
+           Examples:
+           ?title=Harry Potter and the Sorcerer's Stone
+           ?author=1
+           ?publication_year=2020
+           ?publication_year__gte=2000&publication_year__lte=2020
+           ?title__icontains=harry
+        
+        2. SEARCHING:
+           Search across multiple fields simultaneously.
+           
+           Search Fields:
+           - title: Book title
+           - author__name: Author's name
+           
+           Examples:
+           ?search=Harry
+           ?search=Rowling
+           ?search=Potter
+        
+        3. ORDERING:
+           Sort results by any field.
+           
+           Ordering Fields:
+           - title: Sort by title (ascending)
+           - publication_year: Sort by publication year (ascending)
+           - -title: Sort by title (descending)
+           - -publication_year: Sort by publication year (descending)
+           
+           Examples:
+           ?ordering=title
+           ?ordering=-publication_year
+           ?ordering=author,title
+        
+        4. COMBINING FEATURES:
+           Multiple query parameters can be combined.
+           
+           Examples:
+           ?publication_year__gte=2000&ordering=-publication_year
+           ?search=Harry&ordering=title
+           ?author=1&publication_year__gte=2000&ordering=-publication_year
     
     Response Format (200 OK):
-        [
-            {
-                "id": 1,
-                "title": "Book Title",
-                "publication_year": 2020,
-                "author": 1
-            },
-            ...
-        ]
+        {
+            "count": 10,
+            "next": "http://api.example.com/books/?page=2",
+            "previous": null,
+            "results": [
+                {
+                    "id": 1,
+                    "title": "Book Title",
+                    "publication_year": 2020,
+                    "author": 1
+                },
+                ...
+            ]
+        }
     
-    Usage:
-        GET /api/books/
-        GET /api/books/?publication_year=2020
-        GET /api/books/?search=Potter
-        GET /api/books/?ordering=-publication_year
+    Query Parameter Reference:
+        Filtering:
+        - ?title=<exact_title>
+        - ?author=<author_id>
+        - ?publication_year=<year>
+        - ?publication_year__gte=<year>
+        - ?publication_year__lte=<year>
+        - ?title__icontains=<partial_title>
+        
+        Searching:
+        - ?search=<search_term>
+        
+        Ordering:
+        - ?ordering=<field_name>
+        - ?ordering=-<field_name> (descending)
+        
+        Pagination:
+        - ?page=<page_number>
     """
     
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Anyone can read
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     # Enable filtering, searching, and ordering
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['publication_year', 'author']  # Fields to filter by
-    search_fields = ['title', 'author__name']  # Fields to search in
-    ordering_fields = ['publication_year', 'title']  # Fields to order by
+    filter_backends = [
+        filters.DjangoFilterBackend,  # For filtering
+        drf_filters.SearchFilter,      # For searching
+        drf_filters.OrderingFilter     # For ordering
+    ]
+    
+    # Use custom FilterSet for advanced filtering
+    filterset_class = BookFilter
+    
+    # Also support simple field filtering
+    filterset_fields = ['title', 'author', 'publication_year']
+    
+    # Configure search fields
+    search_fields = ['title', 'author__name']
+    
+    # Configure ordering fields
+    ordering_fields = ['title', 'publication_year', 'author']
     ordering = ['-publication_year']  # Default ordering
 
 
@@ -110,7 +233,7 @@ class BookDetailView(generics.RetrieveAPIView):
     
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Anyone can read
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class BookCreateView(generics.CreateAPIView):
@@ -134,10 +257,13 @@ class BookCreateView(generics.CreateAPIView):
     
     Response Format (201 Created):
         {
-            "id": 5,
-            "title": "New Book Title",
-            "publication_year": 2023,
-            "author": 1
+            "message": "Book created successfully",
+            "book": {
+                "id": 5,
+                "title": "New Book Title",
+                "publication_year": 2023,
+                "author": 1
+            }
         }
     
     Error Responses:
@@ -157,41 +283,21 @@ class BookCreateView(generics.CreateAPIView):
     
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Only authenticated users can create
+    permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
         """
         Custom create logic executed when a new book is created.
         
-        This method is called by CreateAPIView after validation but before
-        saving the instance. It can be used to:
-        - Add additional fields
-        - Perform additional validation
-        - Log creation events
-        - Send notifications
-        
         Args:
             serializer: The validated serializer instance
         """
-        # Save the book instance
         book = serializer.save()
-        
-        # You can add custom logic here, such as:
-        # - Logging the creation
-        # - Sending notifications
-        # - Updating related models
-        
-        # Example: Log book creation (in production, use proper logging)
         print(f"New book created: {book.title} by {book.author.name}")
     
     def create(self, request, *args, **kwargs):
         """
         Override create method to customize response and error handling.
-        
-        This method handles the entire create request lifecycle:
-        1. Validate the request data
-        2. Create the book instance
-        3. Return appropriate response
         
         Args:
             request: The HTTP request object
@@ -266,56 +372,19 @@ class BookUpdateView(generics.UpdateAPIView):
         - 400 Bad Request: Invalid data
         - 401 Unauthorized: User not authenticated
         - 404 Not Found: Book doesn't exist
-    
-    Custom Behavior:
-        - Validates all updates using BookSerializer
-        - Supports partial updates (PATCH) for updating specific fields
-        - Maintains data integrity through validation
-    
-    Usage:
-        PUT /api/books/1/update/
-        Headers: Authorization: Token <your_token>
-        Body: {"title": "New Title", "publication_year": 2023, "author": 1}
-        
-        PATCH /api/books/1/update/
-        Headers: Authorization: Token <your_token>
-        Body: {"title": "New Title"}
     """
     
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Only authenticated users can update
+    permission_classes = [IsAuthenticated]
     
     def perform_update(self, serializer):
-        """
-        Custom update logic executed when a book is updated.
-        
-        This method is called after validation but before saving.
-        Useful for:
-        - Logging updates
-        - Sending notifications
-        - Updating related models
-        
-        Args:
-            serializer: The validated serializer instance
-        """
+        """Custom update logic."""
         book = serializer.save()
-        
-        # Custom logic after update
         print(f"Book updated: {book.title}")
     
     def update(self, request, *args, **kwargs):
-        """
-        Override update method to customize response.
-        
-        Handles both PUT (full update) and PATCH (partial update) requests.
-        
-        Args:
-            request: The HTTP request object
-            
-        Returns:
-            Response: HTTP response with updated book data or errors
-        """
+        """Override update method to customize response."""
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -368,60 +437,22 @@ class BookDeleteView(generics.DestroyAPIView):
     Error Responses:
         - 401 Unauthorized: User not authenticated
         - 404 Not Found: Book doesn't exist
-    
-    Custom Behavior:
-        - Returns the deleted book data in the response
-        - Includes custom success message
-        - Can be extended to implement soft deletes
-    
-    Usage:
-        DELETE /api/books/1/delete/
-        Headers: Authorization: Token <your_token>
     """
     
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]  # Only authenticated users can delete
+    permission_classes = [IsAuthenticated]
     
     def perform_destroy(self, instance):
-        """
-        Custom delete logic executed when a book is deleted.
-        
-        This method is called before the instance is actually deleted.
-        Useful for:
-        - Logging deletions
-        - Creating audit trails
-        - Implementing soft deletes
-        - Cleaning up related data
-        
-        Args:
-            instance: The book instance to be deleted
-        """
-        # Log the deletion
+        """Custom delete logic."""
         print(f"Book deleted: {instance.title} by {instance.author.name}")
-        
-        # Perform the actual deletion
         instance.delete()
     
     def destroy(self, request, *args, **kwargs):
-        """
-        Override destroy method to customize response.
-        
-        Returns the deleted book data along with a success message.
-        
-        Args:
-            request: The HTTP request object
-            
-        Returns:
-            Response: HTTP response with deletion confirmation
-        """
+        """Override destroy method to customize response."""
         instance = self.get_object()
-        
-        # Serialize the instance before deleting to return in response
         serializer = self.get_serializer(instance)
         book_data = serializer.data
-        
-        # Perform the deletion
         self.perform_destroy(instance)
         
         return Response(
