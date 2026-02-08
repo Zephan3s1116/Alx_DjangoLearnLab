@@ -711,3 +711,374 @@ Successful queries return paginated results:
 - **Project Directory:** `advanced-api-project`
 - **Task:** Task 2 - Implementing Filtering, Searching, and Ordering in Django REST Framework
 
+
+---
+
+## Task 3: Writing Unit Tests for Django REST Framework APIs
+
+### Overview
+This task implements comprehensive unit tests for all API endpoints, ensuring code quality, reliability, and correctness of the Book API.
+
+---
+
+### Testing Strategy
+
+#### Goals
+- Ensure all API endpoints function correctly
+- Validate CRUD operations work as expected
+- Verify filtering, searching, and ordering features
+- Confirm permission and authentication mechanisms
+- Test edge cases and error handling
+
+#### Approach
+- **Unit Testing**: Test individual components in isolation
+- **Integration Testing**: Test interactions between components
+- **Comprehensive Coverage**: Test both success and failure scenarios
+- **Automated Testing**: Run tests frequently during development
+
+---
+
+### Test Categories (40+ Tests)
+
+#### 1. Authentication Tests (5 tests)
+- Token creation and validation
+- Authenticated vs unauthenticated requests
+- Invalid token handling
+- Missing authentication scenarios
+
+#### 2. CRUD Operation Tests (12 tests)
+
+**Create (3 tests):**
+- Creating books with authentication
+- Validation errors (future year, missing fields)
+- Unauthorized creation attempts
+
+**Read (3 tests):**
+- Listing all books
+- Retrieving single book by ID
+- Handling nonexistent books (404)
+
+**Update (3 tests):**
+- Full updates (PUT)
+- Partial updates (PATCH)
+- Unauthorized update attempts
+
+**Delete (3 tests):**
+- Deleting books with authentication
+- Unauthorized deletion attempts
+- Handling nonexistent books (404)
+
+#### 3. Filtering Tests (6 tests)
+- Filter by publication year (exact match)
+- Filter by publication year range (gte, lte)
+- Filter by year range (combined gte + lte)
+- Filter by author ID
+- Case-insensitive title filtering
+
+#### 4. Searching Tests (4 tests)
+- Search by book title
+- Search by author name
+- Case-insensitive search verification
+- Empty search results handling
+
+#### 5. Ordering Tests (4 tests)
+- Order by title (ascending/descending)
+- Order by publication year (ascending/descending)
+- Multiple field ordering
+- Default ordering verification
+
+#### 6. Combined Query Tests (3 tests)
+- Filter + Order combinations
+- Search + Order combinations
+- Filter + Search + Order (complex queries)
+
+#### 7. Permission Tests (2 tests)
+- Public read access verification
+- Authenticated write access enforcement
+
+#### 8. Edge Cases (3 tests)
+- Invalid book ID format handling
+- Empty request body validation
+- Pagination functionality
+
+---
+
+### Running Tests
+
+#### Run All Tests
+```bash
+python manage.py test api
+```
+
+#### Run Specific Test Class
+```bash
+python manage.py test api.test_views.BookAPITestCase
+```
+
+#### Run Specific Test Method
+```bash
+python manage.py test api.test_views.BookAPITestCase.test_create_book_authenticated
+```
+
+#### Run with Verbose Output
+```bash
+python manage.py test api --verbosity=2
+```
+
+#### Run with Coverage Report
+```bash
+# Install coverage first
+pip install coverage
+
+# Run tests with coverage
+coverage run --source='.' manage.py test api
+coverage report
+coverage html  # Generate HTML report
+```
+
+---
+
+### Test Results Interpretation
+
+#### Successful Test Run
+```
+Found 40 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+........................................
+----------------------------------------------------------------------
+Ran 40 tests in 2.345s
+
+OK
+Destroying test database for alias 'default'...
+```
+
+**Interpretation:**
+- All 40 tests passed ✅
+- Each dot (.) represents a passed test
+- Test database created and destroyed automatically
+- No errors or failures
+
+#### Failed Test Example
+```
+======================================================================
+FAIL: test_create_book_authenticated (api.test_views.BookAPITestCase)
+----------------------------------------------------------------------
+AssertionError: 400 != 201
+```
+
+**Interpretation:**
+- One test failed ❌
+- Test expected status 201 (Created) but got 400 (Bad Request)
+- Need to investigate the book creation endpoint
+
+---
+
+### Key Test Cases
+
+#### Authentication Tests
+```python
+def test_authenticated_request(self):
+    """Test that authenticated requests work correctly."""
+    self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+    response = self.client.get(self.list_url)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+```
+
+#### CRUD Tests
+```python
+def test_create_book_authenticated(self):
+    """Test creating a book with authentication."""
+    self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+    data = {
+        'title': 'New Test Book',
+        'publication_year': 2020,
+        'author': self.author1.id
+    }
+    response = self.client.post(self.create_url, data, format='json')
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertTrue(Book.objects.filter(title='New Test Book').exists())
+```
+
+#### Filtering Tests
+```python
+def test_filter_by_publication_year(self):
+    """Test filtering books by publication year."""
+    url = f'{self.list_url}?publication_year=1997'
+    response = self.client.get(url)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data['results']), 1)
+```
+
+#### Searching Tests
+```python
+def test_search_by_title(self):
+    """Test searching books by title."""
+    url = f'{self.list_url}?search=Harry'
+    response = self.client.get(url)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    for book in response.data['results']:
+        self.assertIn('Harry', book['title'])
+```
+
+#### Ordering Tests
+```python
+def test_order_by_title_ascending(self):
+    """Test ordering books by title (ascending)."""
+    url = f'{self.list_url}?ordering=title'
+    response = self.client.get(url)
+    titles = [book['title'] for book in response.data['results']]
+    self.assertEqual(titles, sorted(titles))
+```
+
+---
+
+### Test Data Setup
+
+Each test uses the `setUp()` method to create consistent test data:
+
+```python
+def setUp(self):
+    # Create test users
+    self.user = User.objects.create_user(username='testuser', password='testpass123')
+    
+    # Create authentication tokens
+    self.token = Token.objects.create(user=self.user)
+    
+    # Create test authors
+    self.author1 = Author.objects.create(name='J.K. Rowling')
+    
+    # Create test books
+    self.book1 = Book.objects.create(
+        title='Harry Potter and the Sorcerer\'s Stone',
+        publication_year=1997,
+        author=self.author1
+    )
+```
+
+---
+
+### Continuous Integration
+
+#### Pre-commit Tests
+Always run tests before committing:
+```bash
+python manage.py test
+```
+
+#### CI/CD Integration
+Configure your CI/CD pipeline to run tests automatically:
+```yaml
+# Example GitHub Actions workflow
+- name: Run Tests
+  run: python manage.py test
+```
+
+---
+
+### Documentation Files
+
+- **api/test_views.py**: Complete test suite (40+ tests)
+- **TESTING_GUIDE.md**: Comprehensive testing documentation
+- **README.md**: This file - project documentation
+
+---
+
+### Test Coverage
+
+**Coverage Goals:**
+- ✅ >80% code coverage
+- ✅ 100% coverage for CRUD operations
+- ✅ All filtering scenarios tested
+- ✅ All searching scenarios tested
+- ✅ All ordering scenarios tested
+- ✅ All permission scenarios tested
+
+**Check Coverage:**
+```bash
+coverage run --source='.' manage.py test api
+coverage report
+```
+
+---
+
+### Best Practices Implemented
+
+1. ✅ **Descriptive test names** - Each test name explains what it tests
+2. ✅ **Independent tests** - Each test can run independently
+3. ✅ **Comprehensive coverage** - Both success and failure scenarios
+4. ✅ **Clear assertions** - Each test has clear pass/fail criteria
+5. ✅ **Test data isolation** - Each test uses fresh test database
+6. ✅ **Edge case testing** - Invalid inputs and boundary conditions
+7. ✅ **Documentation** - Docstrings explain test purpose
+8. ✅ **Organized structure** - Tests grouped by category
+
+---
+
+### Features Summary
+
+✅ **40+ comprehensive unit tests**  
+✅ **Authentication and permission testing**  
+✅ **Complete CRUD operation coverage**  
+✅ **Filtering functionality tests**  
+✅ **Searching functionality tests**  
+✅ **Ordering functionality tests**  
+✅ **Combined query tests**  
+✅ **Edge case and error handling**  
+✅ **Automated test execution**  
+✅ **Detailed test documentation**  
+
+---
+
+### Quick Reference
+
+**Run all tests:**
+```bash
+python manage.py test api
+```
+
+**Run with verbose output:**
+```bash
+python manage.py test api -v 2
+```
+
+**Run specific test:**
+```bash
+python manage.py test api.test_views.BookAPITestCase.test_create_book_authenticated
+```
+
+**Check coverage:**
+```bash
+coverage run --source='.' manage.py test api
+coverage report
+```
+
+---
+
+### Expected Output
+
+When you run the tests, you should see:
+
+```
+Found 40 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+........................................
+----------------------------------------------------------------------
+Ran 40 tests in 2.345s
+
+OK
+Destroying test database for alias 'default'...
+```
+
+**All tests should pass!** ✅
+
+---
+
+### Repository Information
+
+- **GitHub Repository:** `Alx_DjangoLearnLab`
+- **Project Directory:** `advanced-api-project`
+- **Task:** Task 3 - Writing Unit Tests for Django REST Framework APIs
+- **Test File:** `api/test_views.py`
+
