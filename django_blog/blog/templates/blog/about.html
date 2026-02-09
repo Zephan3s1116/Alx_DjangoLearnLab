@@ -1,0 +1,48 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}About - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <h1 class="mb-4">About Django Blog</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Welcome to Our Blog Platform</h2>
+                <p class="card-text">
+                    This is a Django-based blogging platform created as part of the ALX Django Learning Lab.
+                    The blog demonstrates the fundamental concepts of Django web development, including:
+                </p>
+                
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item">Model-View-Template (MVT) architecture</li>
+                    <li class="list-group-item">Database models and relationships</li>
+                    <li class="list-group-item">Template inheritance and static files</li>
+                    <li class="list-group-item">Django admin interface</li>
+                    <li class="list-group-item">URL routing and views</li>
+                </ul>
+                
+                <h3>Features</h3>
+                <ul>
+                    <li>Create and manage blog posts</li>
+                    <li>User authentication and authorization</li>
+                    <li>Responsive design with Bootstrap</li>
+                    <li>Clean and intuitive interface</li>
+                </ul>
+                
+                <h3>Technology Stack</h3>
+                <ul>
+                    <li><strong>Backend:</strong> Django (Python)</li>
+                    <li><strong>Database:</strong> SQLite</li>
+                    <li><strong>Frontend:</strong> HTML, CSS, JavaScript, Bootstrap</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{% url 'blog-home' %}" class="btn btn-primary">← Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
