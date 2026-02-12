@@ -260,3 +260,76 @@ For questions or support, please refer to the ALX Django Learning Lab resources.
 ---
 
 **Created with ❤️ as part of ALX Django Learning Lab**
+
+---
+
+## Task 1: User Authentication System
+
+### Overview
+Comprehensive user authentication system with registration, login, logout, and profile management.
+
+### Features
+
+#### Authentication
+- ✅ User Registration with email
+- ✅ User Login/Logout  
+- ✅ Profile Management (view and edit)
+- ✅ Password Security (Django's built-in hashing)
+- ✅ CSRF Protection
+- ✅ Login Required Decorator
+- ✅ Form Validation
+- ✅ Success/Error Messages
+
+### URL Patterns
+
+| URL | View | Purpose | Auth Required |
+|-----|------|---------|---------------|
+| `/register/` | `register` | Create account | No |
+| `/login/` | `user_login` | Login | No |
+| `/logout/` | `user_logout` | Logout | Yes |
+| `/profile/` | `profile` | Manage profile | Yes |
+
+### Forms
+
+#### CustomUserCreationForm
+Extended registration form with:
+- Username
+- Email (required)
+- Password
+- Password confirmation
+
+#### UserUpdateForm  
+Profile update form with:
+- Username
+- Email (with uniqueness validation)
+
+### Security Features
+
+1. **Password Hashing**: PBKDF2 algorithm with SHA256
+2. **CSRF Protection**: All forms include CSRF tokens
+3. **Login Required**: Protected routes with `@login_required`
+4. **Form Validation**: Server-side validation for all inputs
+
+### Testing
+
+Run manual tests:
+1. Register: http://127.0.0.1:8000/register/
+2. Login: http://127.0.0.1:8000/login/
+3. Profile: http://127.0.0.1:8000/profile/
+4. Logout: Click logout in navbar
+
+Run automated tests:
+```bash
+python manage.py test blog
+```
+
+### Documentation
+
+See [AUTHENTICATION_GUIDE.md](AUTHENTICATION_GUIDE.md) for:
+- Complete authentication flow
+- Security measures
+- Testing guide
+- User guide
+- Developer guide
+
+---
