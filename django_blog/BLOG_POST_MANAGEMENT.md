@@ -506,3 +506,29 @@ python manage.py test blog.test_post_crud
 ✅ 403 Forbidden for unauthorized access  
 
 All blog post management features are fully functional and tested!
+
+---
+
+## Updated URL Patterns
+
+### New URL Structure
+
+The URL patterns have been updated to follow Django conventions:
+
+| Old Pattern | New Pattern | Reason |
+|-------------|-------------|--------|
+| `/posts/<int:pk>/` | `/post/<int:pk>/` | Singular for individual resource |
+| `/posts/<int:pk>/edit/` | `/post/<int:pk>/update/` | Consistent with Django naming |
+| N/A | N/A | N/A |
+
+### Complete URL Reference
+
+```
+/posts/                     → List all posts
+/post/<int:pk>/             → View single post
+/post/new/                  → Create new post
+/post/<int:pk>/update/      → Edit post
+/post/<int:pk>/delete/      → Delete post
+```
+
+For detailed URL documentation, see [URL_PATTERNS.md](URL_PATTERNS.md).
