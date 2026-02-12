@@ -1,23 +1,193 @@
 """
 Blog Views
 
-This module contains view functions for the blog application,
-including authentication and profile management views.
+This module contains view functions and class-based views for the blog application,
+including authentication, profile management, and CRUD operations for blog posts.
 """
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.decorators.csrf import csrf_protect
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView
+)
+from django.urls import reverse_lazy
 from .models import Post
 from .forms import CustomUserCreationForm, UserUpdateForm
 
 
+# ============================================================================
+# Blog Post CRUD Views (Class-Based Views)
+# ============================================================================
+
+class PostListView(ListView):
+    """
+    Display a list of all blog posts.
+    
+    Accessible to all users (authenticated or not).
+    Posts are ordered by publication date (newest first).
+    
+    Template: blog/post_list.html
+    Context: 'posts' (paginated list of Post objects)
+    """
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-published_date']
+    paginate_by = 5  # Show 5 posts per page
+
+
+class PostDetailView(DetailView):
+    """
+    Display a single blog post with full content.
+    
+    Accessible to all users (authenticated or not).
+    
+    Template: blog/post_detail.html
+    Context: 'post' (single Post object)
+    """
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    """
+    Allow authenticated users to create new blog posts.
+    
+    Only accessible to authenticated users.
+    The author field is automatically set to the current user.
+    
+    Template: blog/post_form.html
+    Success: Redirects to the newly created post's detail page
+    """
+    model = Post
+    fields = ['title', 'content']
+    template_name = 'blog/post_form.html'
+    
+    def form_valid(self, form):
+        """
+        Set the author to the current user before saving.
+        
+        Args:
+            form: The validated form instance
+            
+        Returns:
+            HttpResponse: Redirect to success URL
+        """
+        form.instance.author = self.request.user
+        messages.success(self.request, 'Your post has been created!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        """Add page title to context."""
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Post'
+        context['button_text'] = 'Create Post'
+        return context
+
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Allow post authors to edit their own blog posts.
+    
+    Only accessible to:
+    - Authenticated users
+    - The author of the post
+    
+    Template: blog/post_form.html
+    Success: Redirects to the updated post's detail page
+    """
+    model = Post
+    fields = ['title', 'content']
+    template_name = 'blog/post_form.html'
+    
+    def form_valid(self, form):
+        """
+        Ensure the author remains unchanged during update.
+        
+        Args:
+            form: The validated form instance
+            
+        Returns:
+            HttpResponse: Redirect to success URL
+        """
+        form.instance.author = self.request.user
+        messages.success(self.request, 'Your post has been updated!')
+        return super().form_valid(form)
+    
+    def test_func(self):
+        """
+        Check if the current user is the author of the post.
+        
+        Returns:
+            bool: True if current user is the post author, False otherwise
+        """
+        post = self.get_object()
+        return self.request.user == post.author
+    
+    def get_context_data(self, **kwargs):
+        """Add page title to context."""
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Edit Post'
+        context['button_text'] = 'Update Post'
+        return context
+
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Allow post authors to delete their own blog posts.
+    
+    Only accessible to:
+    - Authenticated users
+    - The author of the post
+    
+    Template: blog/post_confirm_delete.html
+    Success: Redirects to the blog home page
+    """
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = reverse_lazy('blog-home')
+    
+    def delete(self, request, *args, **kwargs):
+        """
+        Display success message after deletion.
+        
+        Returns:
+            HttpResponse: Redirect to success URL
+        """
+        messages.success(request, 'Your post has been deleted!')
+        return super().delete(request, *args, **kwargs)
+    
+    def test_func(self):
+        """
+        Check if the current user is the author of the post.
+        
+        Returns:
+            bool: True if current user is the post author, False otherwise
+        """
+        post = self.get_object()
+        return self.request.user == post.author
+
+
+# ============================================================================
+# Function-Based Views (Home and About)
+# ============================================================================
+
 def home(request):
     """
     Display the home page with a list of all blog posts.
+    
+    This is a simple function-based view that can be replaced
+    with PostListView if desired.
     
     Args:
         request: The HTTP request object
@@ -45,6 +215,10 @@ def about(request):
     return render(request, 'blog/about.html')
 
 
+# ============================================================================
+# Authentication Views (Function-Based)
+# ============================================================================
+
 @csrf_protect
 def register(request):
     """
@@ -60,7 +234,6 @@ def register(request):
         HttpResponse: Rendered registration page or redirect to login
     """
     if request.user.is_authenticated:
-        # If user is already logged in, redirect to home
         return redirect('blog-home')
     
     if request.method == 'POST':
@@ -93,7 +266,6 @@ def user_login(request):
         HttpResponse: Rendered login page or redirect to home
     """
     if request.user.is_authenticated:
-        # If user is already logged in, redirect to home
         return redirect('blog-home')
     
     if request.method == 'POST':
@@ -106,7 +278,6 @@ def user_login(request):
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
                 
-                # Redirect to next page if specified, otherwise to home
                 next_page = request.GET.get('next')
                 if next_page:
                     return redirect(next_page)

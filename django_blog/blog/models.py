@@ -9,6 +9,7 @@ Models:
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 
 class Post(models.Model):
@@ -23,6 +24,8 @@ class Post(models.Model):
     
     Methods:
         __str__: Returns the title of the post
+        get_absolute_url: Returns the URL for the post detail page
+        get_snippet: Returns a short excerpt of the post content
     
     Meta:
         ordering: Posts ordered by published_date in descending order (newest first)
@@ -62,6 +65,18 @@ class Post(models.Model):
             str: The title of the post
         """
         return self.title
+    
+    def get_absolute_url(self):
+        """
+        Get the URL for the post detail page.
+        
+        This method is used by Django's class-based views to redirect
+        after creating or updating a post.
+        
+        Returns:
+            str: The URL path to the post detail view
+        """
+        return reverse('post-detail', kwargs={'pk': self.pk})
     
     def get_snippet(self, length=100):
         """
