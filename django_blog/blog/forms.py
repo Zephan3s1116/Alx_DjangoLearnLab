@@ -8,7 +8,7 @@ and comment functionality.
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Comment
+from .models import Comment, Post
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -118,3 +118,40 @@ class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['content'].required = True
+
+
+
+class PostForm(forms.ModelForm):
+    """
+    Form for creating and updating blog posts.
+    
+    Includes fields for title, content, and tags.
+    Tags can be entered as comma-separated values.
+    """
+    
+    class Meta:
+        model = Post
+        fields = ('title', 'content', 'tags')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter post title'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 10,
+                'placeholder': 'Write your post content here...'
+            }),
+            'tags': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas (e.g., python, django, web)'
+            })
+        }
+        labels = {
+            'title': 'Post Title',
+            'content': 'Content',
+            'tags': 'Tags'
+        }
+        help_texts = {
+            'tags': 'Separate tags with commas. New tags will be created automatically.'
+        }

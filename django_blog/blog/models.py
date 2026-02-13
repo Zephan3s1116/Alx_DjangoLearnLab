@@ -4,13 +4,14 @@ Blog Models
 This module defines the data models for the Django blog application.
 
 Models:
-    - Post: Represents a blog post with title, content, publication date, and author
+    - Post: Represents a blog post with title, content, publication date, author, and tags
     - Comment: Represents a comment on a blog post
 """
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from taggit.managers import TaggableManager
 
 
 class Post(models.Model):
@@ -22,6 +23,7 @@ class Post(models.Model):
         content (TextField): The main content of the blog post
         published_date (DateTimeField): The date and time when the post was published
         author (ForeignKey): Reference to the User who authored the post
+        tags (TaggableManager): Tags associated with this post
     
     Methods:
         __str__: Returns the title of the post
@@ -51,6 +53,11 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='blog_posts',
         help_text="The author of this blog post"
+    )
+    
+    tags = TaggableManager(
+        blank=True,
+        help_text="A comma-separated list of tags"
     )
     
     class Meta:
@@ -121,7 +128,7 @@ class Comment(models.Model):
     )
     
     class Meta:
-        ordering = ['created_at']  # Oldest comments first
+        ordering = ['created_at']
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
     

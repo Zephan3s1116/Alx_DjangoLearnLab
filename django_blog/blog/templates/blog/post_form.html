@@ -20,15 +20,9 @@
                             <label for="{{ form.title.id_for_label }}" class="form-label">
                                 Post Title
                             </label>
-                            <input type="text" 
-                                   name="title" 
-                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}"
-                                   id="{{ form.title.id_for_label }}"
-                                   value="{{ form.title.value|default:'' }}"
-                                   maxlength="200"
-                                   required>
+                            {{ form.title }}
                             {% if form.title.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ form.title.errors }}
                             </div>
                             {% endif %}
@@ -39,15 +33,28 @@
                             <label for="{{ form.content.id_for_label }}" class="form-label">
                                 Post Content
                             </label>
-                            <textarea name="content" 
-                                      class="form-control {% if form.content.errors %}is-invalid{% endif %}"
-                                      id="{{ form.content.id_for_label }}"
-                                      rows="10"
-                                      required>{{ form.content.value|default:'' }}</textarea>
+                            {{ form.content }}
                             {% if form.content.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ form.content.errors }}
                             </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Tags field -->
+                        <div class="mb-3">
+                            <label for="{{ form.tags.id_for_label }}" class="form-label">
+                                <i class="bi bi-tags"></i> Tags
+                            </label>
+                            {{ form.tags }}
+                            {% if form.tags.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.tags.errors }}
+                            </div>
+                            {% else %}
+                            <small class="form-text text-muted">
+                                {{ form.tags.help_text }}
+                            </small>
                             {% endif %}
                         </div>
                     </fieldset>
