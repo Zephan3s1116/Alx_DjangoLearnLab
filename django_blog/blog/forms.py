@@ -2,7 +2,7 @@
 Blog Forms
 
 This module contains custom forms for user authentication, profile management,
-and comment functionality.
+comment functionality, and blog post creation.
 """
 
 from django import forms
@@ -90,15 +90,7 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
-    """
-    Form for creating and updating comments.
-    
-    This form allows users to post comments on blog posts.
-    The post and author fields are automatically set in the view.
-    
-    Fields:
-        content: The text content of the comment
-    """
+    """Form for creating and updating comments."""
     
     class Meta:
         model = Comment
@@ -120,18 +112,18 @@ class CommentForm(forms.ModelForm):
         self.fields['content'].required = True
 
 
-
 class PostForm(forms.ModelForm):
     """
     Form for creating and updating blog posts.
     
     Includes fields for title, content, and tags.
-    Tags can be entered as comma-separated values.
+    Tags should be entered as comma-separated values.
     """
     
+    # Use TagWidget from taggit for better tag handling
     class Meta:
         model = Post
-        fields = ('title', 'content', 'tags')
+        fields = ['title', 'content', 'tags']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -142,10 +134,6 @@ class PostForm(forms.ModelForm):
                 'rows': 10,
                 'placeholder': 'Write your post content here...'
             }),
-            'tags': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter tags separated by commas (e.g., python, django, web)'
-            })
         }
         labels = {
             'title': 'Post Title',
@@ -153,5 +141,14 @@ class PostForm(forms.ModelForm):
             'tags': 'Tags'
         }
         help_texts = {
-            'tags': 'Separate tags with commas. New tags will be created automatically.'
+            'tags': 'Separate tags with commas (e.g., python, django, web). New tags will be created automatically.'
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Bootstrap class to tags field
+        if 'tags' in self.fields:
+            self.fields['tags'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas'
+            })
