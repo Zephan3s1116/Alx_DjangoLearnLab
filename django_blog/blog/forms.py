@@ -8,6 +8,7 @@ comment functionality, and blog post creation.
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from taggit.forms import TagWidget
 from .models import Comment, Post
 
 
@@ -118,9 +119,9 @@ class PostForm(forms.ModelForm):
     
     Includes fields for title, content, and tags.
     Tags should be entered as comma-separated values.
+    Uses TagWidget from django-taggit for tag input.
     """
     
-    # Use TagWidget from taggit for better tag handling
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']
@@ -134,6 +135,10 @@ class PostForm(forms.ModelForm):
                 'rows': 10,
                 'placeholder': 'Write your post content here...'
             }),
+            'tags': TagWidget(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas (e.g., python, django, web)'
+            }),
         }
         labels = {
             'title': 'Post Title',
@@ -141,14 +146,5 @@ class PostForm(forms.ModelForm):
             'tags': 'Tags'
         }
         help_texts = {
-            'tags': 'Separate tags with commas (e.g., python, django, web). New tags will be created automatically.'
+            'tags': 'Separate tags with commas. New tags will be created automatically.'
         }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add Bootstrap class to tags field
-        if 'tags' in self.fields:
-            self.fields['tags'].widget.attrs.update({
-                'class': 'form-control',
-                'placeholder': 'Enter tags separated by commas'
-            })
