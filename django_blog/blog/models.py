@@ -5,6 +5,7 @@ This module defines the data models for the Django blog application.
 
 Models:
     - Post: Represents a blog post with title, content, publication date, and author
+    - Comment: Represents a comment on a blog post
 """
 
 from django.db import models
@@ -53,41 +54,81 @@ class Post(models.Model):
     )
     
     class Meta:
-        ordering = ['-published_date']  # Newest posts first
+        ordering = ['-published_date']
         verbose_name = 'Blog Post'
         verbose_name_plural = 'Blog Posts'
     
     def __str__(self):
-        """
-        String representation of the Post model.
-        
-        Returns:
-            str: The title of the post
-        """
+        """String representation of the Post model."""
         return self.title
     
     def get_absolute_url(self):
-        """
-        Get the URL for the post detail page.
-        
-        This method is used by Django's class-based views to redirect
-        after creating or updating a post.
-        
-        Returns:
-            str: The URL path to the post detail view
-        """
+        """Get the URL for the post detail page."""
         return reverse('post-detail', kwargs={'pk': self.pk})
     
     def get_snippet(self, length=100):
-        """
-        Get a snippet of the post content.
-        
-        Args:
-            length (int): Maximum length of the snippet
-            
-        Returns:
-            str: Truncated content with ellipsis if needed
-        """
+        """Get a snippet of the post content."""
         if len(self.content) > length:
             return f"{self.content[:length]}..."
         return self.content
+
+
+class Comment(models.Model):
+    """
+    Comment model representing a comment on a blog post.
+    
+    Attributes:
+        post (ForeignKey): The blog post this comment belongs to
+        author (ForeignKey): The user who wrote the comment
+        content (TextField): The content of the comment
+        created_at (DateTimeField): When the comment was created
+        updated_at (DateTimeField): When the comment was last updated
+    
+    Methods:
+        __str__: Returns a string representation of the comment
+        get_absolute_url: Returns the URL to the post detail page
+    
+    Meta:
+        ordering: Comments ordered by creation date (oldest first)
+    """
+    
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        help_text="The blog post this comment belongs to"
+    )
+    
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        help_text="The user who wrote this comment"
+    )
+    
+    content = models.TextField(
+        help_text="Enter your comment"
+    )
+    
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="When this comment was created"
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="When this comment was last updated"
+    )
+    
+    class Meta:
+        ordering = ['created_at']  # Oldest comments first
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
+    
+    def __str__(self):
+        """String representation of the Comment model."""
+        return f'Comment by {self.author.username} on {self.post.title}'
+    
+    def get_absolute_url(self):
+        """Return the URL to the post detail page where this comment appears."""
+        return reverse('post-detail', kwargs={'pk': self.post.pk})

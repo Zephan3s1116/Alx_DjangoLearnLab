@@ -1,27 +1,18 @@
 """
 Blog Forms
 
-This module contains custom forms for user authentication and profile management.
+This module contains custom forms for user authentication, profile management,
+and comment functionality.
 """
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import Comment
 
 
 class CustomUserCreationForm(UserCreationForm):
-    """
-    Extended user creation form that includes email field.
-    
-    This form extends Django's built-in UserCreationForm to include
-    an email field, which is required for user registration.
-    
-    Fields:
-        - username: User's chosen username
-        - email: User's email address (required)
-        - password1: Password
-        - password2: Password confirmation
-    """
+    """Extended user creation form that includes email field."""
     
     email = forms.EmailField(
         required=True,
@@ -44,7 +35,6 @@ class CustomUserCreationForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add Bootstrap classes to all fields
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Username'
@@ -59,15 +49,7 @@ class CustomUserCreationForm(UserCreationForm):
         })
     
     def save(self, commit=True):
-        """
-        Save the user with the email field.
-        
-        Args:
-            commit (bool): Whether to save to database immediately
-            
-        Returns:
-            User: The created user instance
-        """
+        """Save the user with the email field."""
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         if commit:
@@ -76,15 +58,7 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
-    """
-    Form for updating user profile information.
-    
-    Allows users to update their username and email address.
-    
-    Fields:
-        - username: User's username
-        - email: User's email address
-    """
+    """Form for updating user profile information."""
     
     email = forms.EmailField(
         required=True,
@@ -105,15 +79,7 @@ class UserUpdateForm(forms.ModelForm):
         }
     
     def clean_email(self):
-        """
-        Validate that the email is unique (excluding current user).
-        
-        Returns:
-            str: The cleaned email address
-            
-        Raises:
-            ValidationError: If email is already in use by another user
-        """
+        """Validate that the email is unique (excluding current user)."""
         email = self.cleaned_data.get('email')
         username = self.cleaned_data.get('username')
         
@@ -121,3 +87,34 @@ class UserUpdateForm(forms.ModelForm):
             raise forms.ValidationError('This email address is already in use.')
         
         return email
+
+
+class CommentForm(forms.ModelForm):
+    """
+    Form for creating and updating comments.
+    
+    This form allows users to post comments on blog posts.
+    The post and author fields are automatically set in the view.
+    
+    Fields:
+        content: The text content of the comment
+    """
+    
+    class Meta:
+        model = Comment
+        fields = ('content',)
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Write your comment here...',
+                'required': True
+            })
+        }
+        labels = {
+            'content': 'Comment'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['content'].required = True

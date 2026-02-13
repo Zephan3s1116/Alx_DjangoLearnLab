@@ -20,7 +20,7 @@ from django.views.generic import (
     DeleteView
 )
 from django.urls import reverse_lazy
-from .models import Post
+from .models import Post, Comment
 from .forms import CustomUserCreationForm, UserUpdateForm
 
 
@@ -57,6 +57,12 @@ class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
+    
+    def get_context_data(self, **kwargs):
+        """Add comment form to context."""
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = CommentForm()
+        return context
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -340,3 +346,107 @@ def profile(request):
         'form': form
     }
     return render(request, 'blog/profile.html', context)
+
+
+# ============================================================================
+# Comment Views
+# ============================================================================
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Allow authenticated users to create comments on blog posts.
+    
+    Template: blog/comment_form.html (or embedded in post_detail.html)
+    Success: Redirects to the post detail page
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+    
+    def form_valid(self, form):
+        """
+        Set the post and author before saving the comment.
+        
+        Args:
+            form: The validated form instance
+            
+        Returns:
+            HttpResponse: Redirect to post detail page
+        """
+        # Get the post from the URL
+        post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        
+        # Set the post and author
+        form.instance.post = post
+        form.instance.author = self.request.user
+        
+        messages.success(self.request, 'Your comment has been posted!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        """Add post to context."""
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(Post, pk=self.kwargs['pk'])
+        return context
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Allow comment authors to edit their own comments.
+    
+    Only accessible to:
+    - Authenticated users
+    - The author of the comment
+    
+    Template: blog/comment_form.html
+    Success: Redirects to the post detail page
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+    
+    def form_valid(self, form):
+        """Display success message after update."""
+        messages.success(self.request, 'Your comment has been updated!')
+        return super().form_valid(form)
+    
+    def test_func(self):
+        """Check if the current user is the author of the comment."""
+        comment = self.get_object()
+        return self.request.user == comment.author
+    
+    def get_context_data(self, **kwargs):
+        """Add editing flag to context."""
+        context = super().get_context_data(**kwargs)
+        context['editing'] = True
+        context['post'] = self.get_object().post
+        return context
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Allow comment authors to delete their own comments.
+    
+    Only accessible to:
+    - Authenticated users
+    - The author of the comment
+    
+    Template: blog/comment_confirm_delete.html
+    Success: Redirects to the post detail page
+    """
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+    
+    def get_success_url(self):
+        """Redirect to the post detail page after deletion."""
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk})
+    
+    def delete(self, request, *args, **kwargs):
+        """Display success message after deletion."""
+        messages.success(request, 'Your comment has been deleted!')
+        return super().delete(request, *args, **kwargs)
+    
+    def test_func(self):
+        """Check if the current user is the author of the comment."""
+        comment = self.get_object()
+        return self.request.user == comment.author

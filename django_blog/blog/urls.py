@@ -2,7 +2,7 @@
 Blog URL Configuration
 
 This module defines the URL patterns for the blog application,
-including authentication, profile management, and CRUD operations for blog posts.
+including authentication, profile management, blog posts, and comments.
 """
 
 from django.urls import path
@@ -12,7 +12,10 @@ from .views import (
     PostDetailView,
     PostCreateView,
     PostUpdateView,
-    PostDeleteView
+    PostDeleteView,
+    CommentCreateView,
+    CommentUpdateView,
+    CommentDeleteView
 )
 
 urlpatterns = [
@@ -20,12 +23,17 @@ urlpatterns = [
     path('', views.home, name='blog-home'),
     path('about/', views.about, name='blog-about'),
     
-    # Blog post CRUD operations (Class-Based Views)
+    # Blog post CRUD operations
     path('posts/', PostListView.as_view(), name='post-list'),
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('post/new/', PostCreateView.as_view(), name='post-create'),
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+    
+    # Comment CRUD operations
+    path('post/<int:pk>/comments/new/', CommentCreateView.as_view(), name='comment-create'),
+    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment-update'),
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
     
     # Authentication URLs
     path('register/', views.register, name='register'),

@@ -405,3 +405,66 @@ See [BLOG_POST_MANAGEMENT.md](BLOG_POST_MANAGEMENT.md) for:
 - Developer guide
 
 ---
+
+---
+
+## Task 3: Comment Functionality
+
+### Overview
+Comprehensive comment system for blog posts with full CRUD operations and proper permissions.
+
+### Features
+
+#### Comment Operations
+- ✅ **Create** comments (authenticated users)
+- ✅ **Read** comments (public access)
+- ✅ **Update** comments (comment authors only)
+- ✅ **Delete** comments (comment authors only)
+
+### Models
+
+#### Comment Model
+- `post` (ForeignKey to Post)
+- `author` (ForeignKey to User)
+- `content` (TextField)
+- `created_at` (DateTimeField, auto)
+- `updated_at` (DateTimeField, auto)
+
+### Views
+
+| View | Mixins | Access |
+|------|--------|--------|
+| CommentCreateView | LoginRequiredMixin | Authenticated |
+| CommentUpdateView | LoginRequiredMixin, UserPassesTestMixin | Author only |
+| CommentDeleteView | LoginRequiredMixin, UserPassesTestMixin | Author only |
+
+### URL Patterns
+
+| URL | Purpose |
+|-----|---------|
+| `/post/<int:pk>/comments/new/` | Create comment |
+| `/comment/<int:pk>/update/` | Edit comment |
+| `/comment/<int:pk>/delete/` | Delete comment |
+
+### Templates
+
+- `post_detail.html` (updated) - Displays comments and form
+- `comment_form.html` - Create/edit comment
+- `comment_confirm_delete.html` - Delete confirmation
+
+### Testing
+
+Run comment tests:
+```bash
+python manage.py test blog.test_comments
+```
+
+### Documentation
+
+See [COMMENT_SYSTEM.md](COMMENT_SYSTEM.md) for:
+- Complete feature documentation
+- Usage guide
+- API examples
+- Security details
+
+---
