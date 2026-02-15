@@ -2,7 +2,7 @@
 Blog Forms
 
 This module contains custom forms for user authentication, profile management,
-comment functionality, and blog post creation.
+comment functionality, and blog post creation with tagging support.
 """
 
 from django import forms
@@ -118,8 +118,7 @@ class PostForm(forms.ModelForm):
     Form for creating and updating blog posts.
     
     Includes fields for title, content, and tags.
-    Tags should be entered as comma-separated values.
-    Uses TagWidget from django-taggit for tag input.
+    Uses TagWidget() from django-taggit for tag input.
     """
     
     class Meta:
@@ -135,16 +134,5 @@ class PostForm(forms.ModelForm):
                 'rows': 10,
                 'placeholder': 'Write your post content here...'
             }),
-            'tags': TagWidget(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter tags separated by commas (e.g., python, django, web)'
-            }),
-        }
-        labels = {
-            'title': 'Post Title',
-            'content': 'Content',
-            'tags': 'Tags'
-        }
-        help_texts = {
-            'tags': 'Separate tags with commas. New tags will be created automatically.'
+            'tags': TagWidget(),
         }
