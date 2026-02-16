@@ -400,3 +400,65 @@ See [POSTS_API_DOCUMENTATION.md](POSTS_API_DOCUMENTATION.md) for:
 - Error responses
 
 ---
+
+---
+
+## Task 2: User Follows and Feed Functionality
+
+### Overview
+Social networking features including follow/unfollow functionality and personalized content feed.
+
+### Features
+
+#### Follow System
+- ✅ Follow users
+- ✅ Unfollow users
+- ✅ View following list
+- ✅ View followers list
+- ✅ Prevent self-following
+- ✅ Check if already following
+
+#### Feed Functionality
+- ✅ Personalized feed from followed users
+- ✅ Chronological ordering (newest first)
+- ✅ Pagination support
+- ✅ Empty feed handling
+
+### API Endpoints
+
+| Endpoint | Method | Purpose | Auth |
+|----------|--------|---------|------|
+| `/api/accounts/follow/<user_id>/` | POST | Follow user | Yes |
+| `/api/accounts/unfollow/<user_id>/` | POST | Unfollow user | Yes |
+| `/api/accounts/following/` | GET | List following | Yes |
+| `/api/accounts/followers/` | GET | List followers | Yes |
+| `/api/posts/feed/` | GET | Get personalized feed | Yes |
+
+### User Model Updates
+
+**New Field:**
+- `following` (ManyToManyField) - Users this user follows
+  - Asymmetrical relationship
+  - Related name: `followers`
+
+**Properties:**
+- `followers_count` - Number of followers
+- `following_count` - Number of users being followed
+
+### Feed Algorithm
+
+The feed shows posts from followed users:
+1. Gets all users in current user's following list
+2. Fetches posts from those users
+3. Orders by creation date (newest first)
+4. Paginates results (10 per page)
+
+### Documentation
+
+See [FOLLOWS_AND_FEED_DOCUMENTATION.md](FOLLOWS_AND_FEED_DOCUMENTATION.md) for:
+- Complete API endpoint documentation
+- Request/response examples
+- Testing examples with cURL and Postman
+- Complete workflow examples
+
+---
