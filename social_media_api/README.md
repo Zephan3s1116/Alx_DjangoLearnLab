@@ -462,3 +462,58 @@ See [FOLLOWS_AND_FEED_DOCUMENTATION.md](FOLLOWS_AND_FEED_DOCUMENTATION.md) for:
 - Complete workflow examples
 
 ---
+
+---
+
+## Task 3: Notifications and Likes Functionality
+
+### Overview
+User engagement features including likes on posts and real-time notifications.
+
+### Features
+
+#### Likes System
+- ✅ Like posts
+- ✅ Unlike posts
+- ✅ View likes count
+- ✅ Check if user liked a post
+- ✅ Prevent duplicate likes
+- ✅ Automatic notifications
+
+#### Notifications
+- ✅ Notifications for likes
+- ✅ Notifications for comments
+- ✅ Notifications for new followers
+- ✅ Mark as read
+- ✅ Mark all as read
+- ✅ Unread first ordering
+
+### API Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/posts/posts/<id>/like/` | POST | Like post |
+| `/api/posts/posts/<id>/unlike/` | POST | Unlike post |
+| `/api/notifications/` | GET | Get notifications |
+| `/api/notifications/<id>/read/` | POST | Mark as read |
+| `/api/notifications/read-all/` | POST | Mark all as read |
+
+### Models
+
+**Like Model:**
+- `user` - Who liked
+- `post` - What was liked
+- `unique_together` - No duplicates
+
+**Notification Model:**
+- `recipient` - Who receives
+- `actor` - Who performed action
+- `verb` - What happened
+- `target` - GenericForeignKey
+- `read` - Read status
+
+### Documentation
+
+See [LIKES_AND_NOTIFICATIONS_DOCUMENTATION.md](LIKES_AND_NOTIFICATIONS_DOCUMENTATION.md)
+
+---
