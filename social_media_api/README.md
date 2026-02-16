@@ -318,3 +318,85 @@ This project is created for educational purposes as part of the ALX Django Learn
 ---
 
 **Created with ❤️ as part of ALX Django Learning Lab**
+
+---
+
+## Task 1: Posts and Comments Functionality
+
+### Overview
+Full CRUD operations for posts and comments with filtering, searching, and pagination.
+
+### Features
+
+#### Posts
+- ✅ Create posts (authenticated users)
+- ✅ List all posts (public, paginated)
+- ✅ View single post (public)
+- ✅ Update posts (author only)
+- ✅ Delete posts (author only)
+- ✅ Search posts by title/content
+- ✅ Filter posts by author
+- ✅ Nested comments in response
+
+#### Comments
+- ✅ Create comments (authenticated users)
+- ✅ List all comments (public, paginated)
+- ✅ View single comment (public)
+- ✅ Update comments (author only)
+- ✅ Delete comments (author only)
+- ✅ Filter comments by post
+
+### API Endpoints
+
+| Endpoint | Method | Purpose | Auth |
+|----------|--------|---------|------|
+| `/api/posts/posts/` | GET | List posts | No |
+| `/api/posts/posts/` | POST | Create post | Yes |
+| `/api/posts/posts/{id}/` | GET | View post | No |
+| `/api/posts/posts/{id}/` | PUT/PATCH | Update post | Author |
+| `/api/posts/posts/{id}/` | DELETE | Delete post | Author |
+| `/api/posts/posts/{id}/comments/` | GET | Post comments | No |
+| `/api/posts/comments/` | GET | List comments | No |
+| `/api/posts/comments/` | POST | Create comment | Yes |
+| `/api/posts/comments/{id}/` | GET | View comment | No |
+| `/api/posts/comments/{id}/` | PUT/PATCH | Update comment | Author |
+| `/api/posts/comments/{id}/` | DELETE | Delete comment | Author |
+
+### Permissions
+
+**IsAuthenticatedOrReadOnly:**
+- Public can read (GET)
+- Authentication required for write (POST, PUT, DELETE)
+
+**IsAuthorOrReadOnly:**
+- Only authors can edit/delete their own content
+- Returns 403 Forbidden for unauthorized attempts
+
+### Filtering & Search
+
+**Search:**
+- `/api/posts/posts/?search=keyword` - Search in title and content
+
+**Filter:**
+- `/api/posts/posts/?author=1` - Filter by author
+- `/api/posts/comments/?post=1` - Filter comments by post
+
+**Ordering:**
+- `/api/posts/posts/?ordering=-created_at` - Newest first
+- `/api/posts/posts/?ordering=title` - Alphabetical
+
+### Pagination
+
+- 10 items per page
+- Navigate: `?page=2`
+- Response includes `next` and `previous` URLs
+
+### Documentation
+
+See [POSTS_API_DOCUMENTATION.md](POSTS_API_DOCUMENTATION.md) for:
+- Complete endpoint documentation
+- Request/response examples
+- Testing examples with cURL and Postman
+- Error responses
+
+---
