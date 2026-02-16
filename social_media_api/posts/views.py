@@ -101,9 +101,7 @@ class FeedView(generics.ListAPIView):
         following_users = current_user.following.all()
         
         # Get posts from those users
-        return Post.objects.filter(
-            author__in=following_users
-        ).order_by('-created_at')
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
     
     def list(self, request, *args, **kwargs):
         """Override to add custom response format."""
