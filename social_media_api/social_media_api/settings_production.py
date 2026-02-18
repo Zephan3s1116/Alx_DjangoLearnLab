@@ -17,6 +17,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 # Database
+# Note: dj_database_url handles PORT automatically from DATABASE_URL
+# For manual configuration, include 'PORT': '5432' in DATABASES
+# PostgreSQL configuration with dj-database-url
 DATABASES = {
     'default': dj_database_url.config(
         default=config('DATABASE_URL')

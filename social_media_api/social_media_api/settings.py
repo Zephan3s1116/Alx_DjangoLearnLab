@@ -82,7 +82,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    
+        # 'PORT': '5432',  # PostgreSQL default port}
 }
 
 
@@ -155,6 +156,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
 
 # Production: Database configuration
+# Include PORT for non-default database ports
+# 'PORT': '5432'  # For PostgreSQL
 # Example: Use environment variable for database
 # import dj_database_url
 # DATABASES = {'default': dj_database_url.config(default='postgresql://...')}

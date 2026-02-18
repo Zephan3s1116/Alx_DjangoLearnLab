@@ -18,6 +18,8 @@ ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com', 'your-app.herokuapp.com
 import dj_database_url
 DATABASES = {
     'default': dj_database_url.config(
+        # PORT is automatically handled from DATABASE_URL
+        # For manual: 'PORT': '5432',
         default='postgresql://user:password@localhost:5432/dbname'
     )
 }
@@ -59,6 +61,7 @@ DEBUG=False
 SECRET_KEY=your-very-long-random-secret-key-here
 ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 DATABASE_URL=postgresql://user:password@host:5432/dbname
+# Note: :5432 is the PORT in the DATABASE_URL
 SECURE_SSL_REDIRECT=True
 ```
 
