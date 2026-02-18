@@ -142,3 +142,31 @@ import os
 # Media Files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# ============================================
+# Production Configuration
+# Uncomment and configure for production
+# ============================================
+# Production: Set DEBUG to False
+# DEBUG = False  # Uncomment in production
+
+# Production: Configure ALLOWED_HOSTS
+# ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
+
+# Production: Database configuration
+# Example: Use environment variable for database
+# import dj_database_url
+# DATABASES = {'default': dj_database_url.config(default='postgresql://...')}
+
+# SECURE_BROWSER_XSS_FILTER = True  # Enable in production
+
+# X_FRAME_OPTIONS = True  # Enable in production
+
+# SECURE_CONTENT_TYPE_NOSNIFF = True  # Enable in production
+
+# SECURE_SSL_REDIRECT = True  # Enable in production
+
+# Production: Static files
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Run: python manage.py collectstatic
