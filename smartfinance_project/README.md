@@ -119,3 +119,66 @@ curl http://localhost:8000/api/auth/profile/ \
 
 **Last Updated:** February 9, 2026
 **Repository:** https://github.com/Zephan3s1116/Alx_DjangoLearnLab/tree/master/smartfinance_project
+
+## Week 2 Progress (Part 4)
+
+### ✅ Completed This Week:
+
+1. **Category Management**
+   - ✅ Category model with default and custom categories
+   - ✅ Category CRUD operations
+   - ✅ 14 default categories (4 income, 10 expense)
+   - ✅ Category filtering and search
+
+2. **Transaction Management**
+   - ✅ Transaction model with full CRUD
+   - ✅ Amount and category type validation
+   - ✅ Date range filtering
+   - ✅ Search by description
+   - ✅ Transaction summary endpoint
+
+### 📊 Current Status:
+
+**Working Features:**
+- User authentication ✅
+- Category management (default + custom) ✅
+- Transaction CRUD ✅
+- Transaction filtering and search ✅
+- Transaction summary statistics ✅
+
+**API Endpoints:**
+- POST `/api/auth/register/` - Register
+- POST `/api/auth/login/` - Login
+- GET/PUT `/api/auth/profile/` - Profile
+- GET/POST `/api/categories/` - List/Create categories
+- GET/PUT/DELETE `/api/categories/{id}/` - Category detail
+- GET/POST `/api/transactions/` - List/Create transactions
+- GET/PUT/DELETE `/api/transactions/{id}/` - Transaction detail
+- GET `/api/transactions/summary/` - Summary stats
+
+### 🎯 Next Week Goals (Week 3):
+
+1. Budget Management
+2. Goal Tracking
+3. Enhanced Analytics
+4. Unit Tests
+
+### 📚 Default Categories Loaded:
+
+**Income (4):**
+- 💰 Salary
+- 💼 Freelance
+- 📈 Investment Returns
+- 💵 Other Income
+
+**Expenses (10):**
+- 🍔 Food & Dining
+- 🚗 Transportation
+- 🏠 Housing
+- 💡 Utilities
+- 🎬 Entertainment
+- ⚕️ Healthcare
+- 🛍️ Shopping
+- 📚 Education
+- ✈️ Travel
+- 📌 Other Expenses
