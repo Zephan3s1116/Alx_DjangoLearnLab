@@ -182,3 +182,58 @@ curl http://localhost:8000/api/auth/profile/ \
 - 📚 Education
 - ✈️ Travel
 - 📌 Other Expenses
+
+---
+
+## Week 2 Update (February 16-22, 2026)
+
+### ✅ New Features:
+- Category Management (CRUD)
+- Transaction Management (CRUD)
+- Transaction Summary Statistics
+- 14 Default Categories
+- Date Range Filtering
+- Search and Ordering
+
+### 📊 API Endpoints (12 total):
+**Authentication (4):**
+- POST /api/auth/register/
+- POST /api/auth/login/
+- GET /api/auth/profile/
+- PUT /api/auth/profile/
+
+**Categories (5):**
+- GET /api/categories/
+- POST /api/categories/
+- GET /api/categories/{id}/
+- PUT /api/categories/{id}/
+- DELETE /api/categories/{id}/
+
+**Transactions (6):**
+- GET /api/transactions/
+- POST /api/transactions/
+- GET /api/transactions/{id}/
+- PUT /api/transactions/{id}/
+- DELETE /api/transactions/{id}/
+- GET /api/transactions/summary/
+
+### 🧪 Quick Test:
+```bash
+# 1. Start server
+python manage.py runserver
+
+# 2. Register user
+curl -X POST http://localhost:8000/api/auth/register/ \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","email":"test@test.com","password":"pass123","password_confirm":"pass123"}'
+
+# 3. List categories
+curl http://localhost:8000/api/categories/ \
+  -H "Authorization: Token YOUR_TOKEN"
+```
+
+### 🎯 Week 3 Goals:
+- Budget Management
+- Goal Tracking
+- Enhanced Analytics
+- Unit Tests

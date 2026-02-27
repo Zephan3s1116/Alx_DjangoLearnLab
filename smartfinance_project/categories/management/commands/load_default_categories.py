@@ -7,24 +7,24 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Income categories
         income_categories = [
-            {'name': 'Salary', 'icon': '💰', 'color': '#4CAF50'},
-            {'name': 'Freelance', 'icon': '💼', 'color': '#2196F3'},
-            {'name': 'Investment Returns', 'icon': '📈', 'color': '#FF9800'},
-            {'name': 'Other Income', 'icon': '💵', 'color': '#9C27B0'},
+            {'name': 'Salary', 'icon': 'salary', 'color': '#4CAF50'},
+            {'name': 'Freelance', 'icon': 'briefcase', 'color': '#2196F3'},
+            {'name': 'Investment Returns', 'icon': 'trending-up', 'color': '#FF9800'},
+            {'name': 'Other Income', 'icon': 'dollar', 'color': '#9C27B0'},
         ]
         
         # Expense categories
         expense_categories = [
-            {'name': 'Food & Dining', 'icon': '🍔', 'color': '#FF5722'},
-            {'name': 'Transportation', 'icon': '🚗', 'color': '#3F51B5'},
-            {'name': 'Housing', 'icon': '🏠', 'color': '#795548'},
-            {'name': 'Utilities', 'icon': '💡', 'color': '#607D8B'},
-            {'name': 'Entertainment', 'icon': '🎬', 'color': '#E91E63'},
-            {'name': 'Healthcare', 'icon': '⚕️', 'color': '#00BCD4'},
-            {'name': 'Shopping', 'icon': '🛍️', 'color': '#FFC107'},
-            {'name': 'Education', 'icon': '📚', 'color': '#673AB7'},
-            {'name': 'Travel', 'icon': '✈️', 'color': '#009688'},
-            {'name': 'Other Expenses', 'icon': '📌', 'color': '#9E9E9E'},
+            {'name': 'Food and Dining', 'icon': 'restaurant', 'color': '#FF5722'},
+            {'name': 'Transportation', 'icon': 'car', 'color': '#3F51B5'},
+            {'name': 'Housing', 'icon': 'home', 'color': '#795548'},
+            {'name': 'Utilities', 'icon': 'lightbulb', 'color': '#607D8B'},
+            {'name': 'Entertainment', 'icon': 'movie', 'color': '#E91E63'},
+            {'name': 'Healthcare', 'icon': 'medical', 'color': '#00BCD4'},
+            {'name': 'Shopping', 'icon': 'shopping-bag', 'color': '#FFC107'},
+            {'name': 'Education', 'icon': 'book', 'color': '#673AB7'},
+            {'name': 'Travel', 'icon': 'airplane', 'color': '#009688'},
+            {'name': 'Other Expenses', 'icon': 'pin', 'color': '#9E9E9E'},
         ]
         
         # Create income categories
@@ -55,4 +55,4 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS(f'Created expense category: {cat["name"]}'))
         
-        self.stdout.write(self.style.SUCCESS('\n✅ Default categories loaded successfully!'))
+        self.stdout.write(self.style.SUCCESS('Default categories loaded successfully'))
