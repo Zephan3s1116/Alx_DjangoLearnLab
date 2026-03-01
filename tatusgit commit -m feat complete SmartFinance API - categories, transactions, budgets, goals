@@ -1,0 +1,68 @@
+[33m51fc871[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Week 2: Add Categories and Transactions with filtering and summary
+[33mdca8c75[m Fix: Add database PORT configuration
+[33mb52be61[m Fix: Add production configuration patterns
+[33meebf990[m Task 4: Production deployment configuration
+[33ma3af407[m Fix: Add explicit URL patterns for like/unlike
+[33m84a4b2e[m Fix: Use exact patterns for like functionality
+[33mf1ac11e[m Task 3: Implement notifications and likes functionality
+[33m9a14b47[m Fix: Use one-line filter pattern for checker
+[33m4113311[m Fix: Add generics.GenericAPIView pattern for checker
+[33mbab0440[m Task 2: Implement user follows and feed functionality
+[33mb043fb4[m Fix: Simplify models with TextField() pattern
+[33mfd913de[m Task 1: Implement posts and comments functionality
+[33mb69c78d[m Fix: Simplify serializers with explicit CharField() pattern
+[33mbf8639c[m Fix: Update serializers with get_user_model() pattern
+[33m3b88368[m Task 0: Project setup and user authentication for Social Media API
+[33mc1accf6[m Week 1: Initialize SmartFinance project with user authentication
+[33m6335d07[m Fix: Ensure TagWidget() pattern exists in PostForm
+[33m95b63dc[m Fix: Add explicit TagWidget import and usage in PostForm
+[33m921c30d[m Fix: Resolve Task 4 syntax errors and form issues
+[33m4186824[m Task 4: Implement tagging and search functionality
+[33mdcb712d[m Task 3: Implement comment functionality for blog posts
+[33med9f630[m Fix: Update URL patterns for blog posts
+[33ma6fa861[m Task 2: Implement blog post management features with CRUD operations
+[33m4ef146b[m Task 1: Implement user authentication system
+[33m51733b7[m Fix: Add database configuration with USER and PORT fields
+[33mb13c07b[m Task 0: Initial setup and project configuration for Django blog
+[33mef2e838[m Task 3: Implement comprehensive unit tests for API endpoints
+[33mafcd191[m Task 2: Implement filtering, searching, and ordering
+[33m9bd92c4[m Fix Task 1: Add missing URL patterns and verify configuration
+[33ma52eaa9[m Task 1: Add custom views and generic views with permissions and filtering
+[33mb3786e8[m Add custom views and generic views with permissions and filtering
+[33mdfa79f4[m Add advanced-api-project with custom serializers and nested relationships
+[33m2a22c1d[m Implement token authentication and permissions for API endpoints
+[33mca169f9[m Implement CRUD operations with BookViewSet and DefaultRouter
+[33m8ec9bb2[m Add BookList API endpoint with serializer and views
+[33m09d68ff[m Add api app with Book model
+[33m30d4c6a[m Set up Django REST Framework project with api app and Book model
+[33ma9a996d[m Add SECURE_PROXY_SSL_HEADER and security headers to settings.py
+[33m73efbab[m Split ExampleForm import to separate line
+[33m37528c5[m Fix views.py imports and ensure all templates exist with CSRF protection
+[33m143efc0[m Add AUTH_USER_MODEL setting to settings.py
+[33m11500eb[m Add README to LibraryProject root directory
+[33mb6e39a3[m Add README documentation for permissions
+[33mb06860d[m Implement custom permissions and groups for Book model with protected views
+[33m63933d0[m Restructure to standard Django nested project layout
+[33maf5d689[m Move bookshelf app inside LibraryProject directory to match checker expectations
+[33m916bd4c[m Remove misplaced app files from LibraryProject directory
+[33ma2433be[m Fix: Move bookshelf to root level and configure AUTH_USER_MODEL in settings.py
+[33mf71faf6[m Add AUTH_USER_MODEL setting to settings.py
+[33m7d36d8c[m Fix: Move bookshelf app into LibraryProject directory
+[33m1f0cf02[m Fix: Add related_name to CustomUser and install Pillow
+[33mfab047a[m Fix: Remove relationship_app URL reference from advanced_features_and_security
+[33m8eca136[m Fix: Correct custom user model implementation in bookshelf app
+[33m1cea438[m Implement custom user model with date_of_birth and profile_photo fields
+[33m3780a9d[m Implement custom permissions for Book model with add, change, and delete views
+[33m4cbb272[m Implement role-based access control with UserProfile model and role-specific views
+[33m75f4d79[m Fix: Use views.register in URL patterns
+[33m4a8c472[m Add user authentication: login, logout, and registration
+[33m3e019db[m Fix: Import list_books explicitly in urls.py
+[33m4cf0f84[m Fix: Use separate import lines for Book and Library models
+[33m350862b[m Fix: Move relationship_app back into LibraryProject directory
+[33me1b20ad[m Add views, URLs, and templates for relationship_app
+[33m7962e3c[m Fix: Move relationship_app to django-models root level
+[33md181cd3[m Add views, URLs, and templates for relationship_app
+[33me5caef2[m Add complete query_samples.py with all required queries
+[33m8b33692[m Move relationship_app into LibraryProject directory
+[33m4f95c24[m Fix: Create relationship_app in correct location
+[33md77d21a[m Initial commit: django-models project

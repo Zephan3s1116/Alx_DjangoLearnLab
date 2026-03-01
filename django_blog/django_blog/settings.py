@@ -112,7 +112,6 @@ DATABASES = {
 #     }
 # }
 
-}
 
 
 # Password validation
