@@ -237,3 +237,68 @@ curl http://localhost:8000/api/categories/ \
 - Goal Tracking
 - Enhanced Analytics
 - Unit Tests
+
+---
+
+## Week 3 Update (February 23-29, 2026)
+
+### ✅ New Features:
+- Budget Management (CRUD + Status)
+- Goal Tracking (CRUD + Progress)
+- Budget vs Actual Spending Calculations
+- Goal Progress Tracking
+- Budget Status Dashboard
+
+### 📊 API Endpoints (22 total):
+
+**Budgets (3 endpoints):**
+- GET/POST `/api/budgets/` - List/Create budgets
+- GET/PUT/DELETE `/api/budgets/{id}/` - Budget detail
+- GET `/api/budgets/status/` - Overall budget status
+
+**Goals (4 endpoints):**
+- GET/POST `/api/goals/` - List/Create goals
+- GET/PUT/DELETE `/api/goals/{id}/` - Goal detail
+- PATCH `/api/goals/{id}/update-progress/` - Update progress
+- PATCH `/api/goals/{id}/complete/` - Mark complete
+
+### 💡 Key Features:
+
+**Budget System:**
+- Track spending limits by category
+- Automatic spent amount calculation
+- Budget status: under/near/over
+- Monthly budget summaries
+- Unique constraint: one budget per category per month
+
+**Goal System:**
+- Track financial goals with deadlines
+- Progress percentage calculation
+- Update progress incrementally
+- Auto-complete when target reached
+- Remaining amount tracking
+
+### 🧪 Quick Test:
+```bash
+# Create a budget
+curl -X POST http://localhost:8000/api/budgets/ \
+  -H "Authorization: Token YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"category": 5, "amount": "500.00", "month": 2, "year": 2026}'
+
+# Create a goal
+curl -X POST http://localhost:8000/api/goals/ \
+  -H "Authorization: Token YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Emergency Fund", "target_amount": "10000.00", "current_amount": "2000.00"}'
+
+# Check budget status
+curl http://localhost:8000/api/budgets/status/?month=2&year=2026 \
+  -H "Authorization: Token YOUR_TOKEN"
+```
+
+### 🎯 Week 4 Goals:
+- Analytics endpoints (trends, reports)
+- Unit tests for all features
+- API documentation
+- Performance optimization
